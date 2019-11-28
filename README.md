@@ -10,11 +10,11 @@ This works for USA, Japan, and Japan (Rev A).
 File locations:
 ```
 Bizhawk/
-	Lua/
-		ActorViewer.lua
-		ActorViewer/
-			core.lua
-			form.lua
+  Lua/
+    ActorViewer.lua
+    ActorViewer/
+      core.lua
+      form.lua
 ```
 
 Have the Majora's Mask ROM loaded then run the ActorViewer.lua script.
