@@ -1,6 +1,6 @@
 # Majora's Mask: Actor Viewer
 
-~[ActorViewer](https://repository-images.githubusercontent.com/224662090/6f7bd180-11c0-11ea-97dd-36c93f061470)
+![ActorViewer](https://repository-images.githubusercontent.com/224662090/6f7bd180-11c0-11ea-97dd-36c93f061470)
 
 Lua Scripts for BizHawk that create a form window and display actor data.
 This works for USA, Japan, and Japan (Rev A).
