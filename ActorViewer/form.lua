@@ -106,8 +106,11 @@ function form.updateActor()
 	if(index~=nil)then
 		local id=memory.read_u16_be(pointers[index]);
 		local name=core.getActorName(id);
+		local actor_type=memory.read_u8(pointers[index]+0x2);
 		local room=memory.read_s8(pointers[index]+0x3);
 		local variable=memory.read_u16_be(pointers[index]+0x1C);
+		local health=memory.read_s8(pointers[index]+0xB7);
+		if(actor_type~=0x05 and actor_type~=0x09)then health="Null"; end
 		forms.settext(labels["ActorData"]["Info"]["Current"],string.format("Current Actor: %s",name));
 		forms.settext(textboxes["ActorData"]["Info"]["Address"],string.format("%06s",bizstring.hex(pointers[index])));
 		forms.settext(textboxes["ActorData"]["Info"]["ID"],string.format("%04s",bizstring.hex(id)));
@@ -119,9 +122,8 @@ function form.updateActor()
 		forms.settext(labels["ActorData"]["Rotation"]["X"],string.format("% 3.2f°",memory.read_u16_be(pointers[index]+0xBC)/182.04));
 		forms.settext(labels["ActorData"]["Rotation"]["Y"],string.format("% 3.2f°",memory.read_u16_be(pointers[index]+0xBE)/182.04));
 		forms.settext(labels["ActorData"]["Rotation"]["Z"],string.format("% 3.2f°",memory.read_u16_be(pointers[index]+0xC0)/182.04));
-		
-		--0x70 float	linear velocity
-		--0xB7 byte		health
+		forms.settext(labels["ActorData"]["Speed"],string.format("% 3.2f",memory.readfloat(pointers[index]+0x70,true)));
+			forms.settext(labels["ActorData"]["Health"],string.format("%s",health..""));
 	end
 end
 
@@ -138,11 +140,9 @@ function form.createForm()
 		["GetID"]=forms.button(FORM,"Get Actors by ID",getActorsByID,x,y+(h*2),100,22),
 		["PreviousActor"]=forms.button(FORM,"Previous",setPreviousActor,x,y+(h*12),100,22),
 		["NextActor"]=forms.button(FORM,"Next",setNextActor,x+105,y+(h*12),100,22),
-		--forms.button(FORM,"Documentation",docsForm,152,64,142,20)
 	};
 	labels={
 		["ActorsFound"]=forms.label(FORM,"",x+210,y+10,280,14,false),
-		--["ActorInfo"]=forms.label(FORM,"",x,y+(h*3),205,28,false),
 		["ActorData"]={
 			["Info"]={
 				["Current"]=forms.label(FORM,"Current Actor:",x,y+(h*3)+(th*1),205,14,false),
@@ -161,13 +161,14 @@ function form.createForm()
 				["Z"]=forms.label(FORM,"",x+25,y+(h*8)+(th*3),65,14,false),
 			},
 			["Rotation"]={
-				["nX"]=forms.label(FORM,"X:",x+105,y+(h*8)+(th*1),20,14,false),
-				["nY"]=forms.label(FORM,"Y:",x+105,y+(h*8)+(th*2),20,14,false),
-				["nZ"]=forms.label(FORM,"Z:",x+105,y+(h*8)+(th*3),20,14,false),
-				["X"]=forms.label(FORM,"",x+125,y+(h*8)+(th*1),65,14,false),
-				["Y"]=forms.label(FORM,"",x+125,y+(h*8)+(th*2),65,14,false),
-				["Z"]=forms.label(FORM,"",x+125,y+(h*8)+(th*3),65,14,false),
+				["X"]=forms.label(FORM,"",x+90,y+(h*8)+(th*1),50,14,false),
+				["Y"]=forms.label(FORM,"",x+90,y+(h*8)+(th*2),50,14,false),
+				["Z"]=forms.label(FORM,"",x+90,y+(h*8)+(th*3),50,14,false),
 			},
+			["nSpeed"]=forms.label(FORM,"Speed:",x+5,y+(h*8)+(th*5),50,14,false),
+			["nHealth"]=forms.label(FORM,"Health:",x+5,y+(h*8)+(th*6),50,14,false),
+			["Speed"]=forms.label(FORM,"",x+90,y+(h*8)+(th*5),50,14,false),
+			["Health"]=forms.label(FORM,"",x+90,y+(h*8)+(th*6),50,14,false),
 		},
 	};
 	textboxes={
@@ -180,16 +181,6 @@ function form.createForm()
 				["Room"]=forms.textbox(FORM,"",100,22,"HEX",x+105,y+(h*4)+43,false,false),
 				["Variable"]=forms.textbox(FORM,"",100,22,"HEX",x+105,y+(h*4)+64,false,false),
 			},
-			--["Position"]={
-			--	["X"]=forms.label(FORM,"",x+5,y+(h*4)+(th*1),100,14,false),
-			--	["Y"]=forms.label(FORM,"",x+5,y+(h*4)+(th*2),100,14,false),
-			--	["Z"]=forms.label(FORM,"",x+5,y+(h*4)+(th*3),100,14,false),
-			--},
-			--["Rotation"]={
-			--	["X"]=forms.label(FORM,"",x+105,y+(h*4)+(th*1),100,14,false),
-			--	["Y"]=forms.label(FORM,"",x+105,y+(h*4)+(th*2),100,14,false),
-			--	["Z"]=forms.label(FORM,"",x+105,y+(h*4)+(th*3),100,14,false),
-			--},
 		},
 	};
 	dropdowns={
@@ -207,6 +198,8 @@ function form.createForm()
 	forms.setproperty(labels["ActorData"]["Rotation"]["X"],"TextAlign","MiddleRight");
 	forms.setproperty(labels["ActorData"]["Rotation"]["Y"],"TextAlign","MiddleRight");
 	forms.setproperty(labels["ActorData"]["Rotation"]["Z"],"TextAlign","MiddleRight");
+	forms.setproperty(labels["ActorData"]["Speed"],"TextAlign","MiddleRight");
+	forms.setproperty(labels["ActorData"]["Health"],"TextAlign","MiddleRight");
 	
 	-- Get all loaded actors on init.
 	getAllActors();
