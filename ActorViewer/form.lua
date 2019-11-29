@@ -95,7 +95,7 @@ end
 
 -- Update Actor Display
 function form.updateActor()
-	event.onloadstate(reloadActors);
+	--event.onloadstate(reloadActors);
 	if(memory.read_u8(list[version]["Load"])==0xEC and reload==false)then
 		reload=true;
 	elseif(memory.read_u8(list[version]["Load"])==0x00 and reload==true)then
