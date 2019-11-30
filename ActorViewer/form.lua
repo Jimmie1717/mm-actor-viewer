@@ -2,7 +2,6 @@ local form={};
 local pointers={};
 local index=nil;
 local lastList="ALL";
-local reload=false;
 
 function getAllActors()
 	lastList="ALL";
@@ -96,11 +95,8 @@ end
 -- Update Actor Display
 function form.updateActor()
 	--event.onloadstate(reloadActors);
-	if(memory.read_u8(list[version]["Load"])==0xEC and reload==false)then
-		reload=true;
-	elseif(memory.read_u8(list[version]["Load"])==0x00 and reload==true)then
+	if(core.roomChanged() or core.sceneChanged())then
 		reloadActors();
-		reload=false;
 	end
 	if(table.getn(pointers)~=0 and index==nil)then index=1; end
 	if(index~=nil)then
@@ -123,7 +119,7 @@ function form.updateActor()
 		forms.settext(labels["ActorData"]["Rotation"]["Y"],string.format("% 3.2f°",memory.read_u16_be(pointers[index]+0xBE)/182.04));
 		forms.settext(labels["ActorData"]["Rotation"]["Z"],string.format("% 3.2f°",memory.read_u16_be(pointers[index]+0xC0)/182.04));
 		forms.settext(labels["ActorData"]["Speed"],string.format("% 3.2f",memory.readfloat(pointers[index]+0x70,true)));
-			forms.settext(labels["ActorData"]["Health"],string.format("%s",health..""));
+		forms.settext(labels["ActorData"]["Health"],string.format("%s",health..""));
 	end
 end
 

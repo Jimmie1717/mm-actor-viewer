@@ -1,26 +1,31 @@
--- Global
-version=nil;
-list={
+local core={};
+-- Version
+local id=nil;
+local version={
 	["NZSE0"]={
 		["ActorList"]=0x3E87D0,
 		["Load"]=0x3FF395,
+		["Room"]=0x3FF200
 	},
 	["NZSJ0"]={
 		["ActorList"]=0x3E89A0,
 		["Load"]=0x3FF545,
+		["Room"]=0x3FF3B0
 	},
 	["NZSJ1"]={
 		["ActorList"]=0x3E8C60,
 		["Load"]=0x3FF805,
+		["Room"]=0x3FF670
 	}
 };
-
-local core={};
+-- Actor Names
 local names={
 	[0x0000]="Link",
+	[0x0004]="Colored Flame",
 	[0x0005]="Door",
 	[0x0006]="Chest",
 	[0x0008]="Octorok",
+	[0x0009]="Explosive",
 	[0x000A]="Wallmaster",
 	[0x000B]="Dodongo",
 	[0x000B]="Keese",
@@ -30,6 +35,7 @@ local names={
 	[0x001E]="Door (Dungeon)",
 	[0x0020]="Zora Fins",
 	[0x0022]="Frog",
+	[0x0024]="Skulltula",
 	[0x0026]="Sign (Arrow)",
 	[0x002F]="Bomb Flower",
 	[0x0033]="Deku Baba",
@@ -46,24 +52,52 @@ local names={
 	[0x0054]="Epona",
 	[0x0055]="Grotto",
 	[0x0066]="Mini Baba",
+	[0x0081]="Wooden Box",
+	[0x0082]="Pot",
 	[0x0090]="Grass",
 	[0x0093]="Switch",
+	[0x0096]="Hookshot Target",
 	[0x00A8]="Sign (Square)",
 	[0x00E4]="Beehive",
+	[0x00E5]="Wooden Crate",
 	[0x010D]="Grass Patch",
 	[0x012F]="Majora/Remains",
 	[0x015A]="Three Day Timer",
+	[0x0164]="Boe",
+	[0x0183]="Deku Flower",
 	[0x018B]="Spring Water",
 	[0x019E]="Monkey",
 	[0x01A8]="Big Octo",
 	[0x01B9]="Lilypad",
 	[0x01D1]="Dexihand",
+	[0x01E7]="Bonk Activator?",
+	[0x01F4]="Spider Web",
+	[0x020B]="Ocean Spider House Guy",
+	[0x0210]="Skull Kid Picture",
 	[0x0223]="Owl Statue",
 	[0x023B]="Magical Mushroom",
+	[0x0265]="Invisible Rupees",
+	[0x02A5]="Stalchild",
 };
+-- For Reloading list.
+local last={
+	["Room"]=0x00,
+	["Scene"]=0x00
+}
+
+function getROMID()
+	local id="";
+	for i=0,3,1 do
+		id=string.format("%s%s",id,string.char(memory.read_u8(0x3B+i,"ROM")));
+		if(i==3)then
+			id=id..memory.read_u8(0x3F,"ROM");
+		end
+	end
+	return id;
+end
 
 function getActorListAddress(actor_type)
-	return list[version]["ActorList"]+(actor_type*0xC);
+	return version[id]["ActorList"]+(actor_type*0xC);
 end
 
 function getActorListAmount(actor_type)
@@ -125,17 +159,42 @@ function core.getActorName(actor_id)
 	end
 end
 
-function core.getVersion()
-	hash=gameinfo.getromhash();
-	if(hash=="D6133ACE5AFAA0882CF214CF88DABA39E266C078")then
-		version="NZSE0";
-		gui.addmessage("Majora's Mask (USA)");
-	elseif(hash=="5FB2301AACBF85278AF30DCA3E4194AD48599E36")then
-		version="NZSJ0";
-		gui.addmessage("Majora's Mask (Japan)");
-	elseif(hash=="41FDB879AB422EC158B4EAFEA69087F255EA8589")then
-		version="NZSJ1";
-		gui.addmessage("Majora's Mask (Japan) (Rev A)");
+function core.roomChanged()
+	local current=memory.read_u8(version[id]["Room"]);
+	if(current~=last["Room"])then
+		last["Room"]=current;
+		return true;
+	else
+		return false;
+	end
+end
+
+function core.sceneChanged()
+	local current=memory.read_u8(version[id]["Load"]);
+	if(current==0x00 and last["Scene"]==0xEC)then
+		last["Scene"]=current;
+		return true;
+	else
+		last["Scene"]=current;
+		return false;
+	end
+end
+
+function core.init()
+	id=getROMID();
+	if(bizstring.substring(id,1,2)=="ZS")then
+		form.createForm();
+		-- init room.
+		last["Room"]=memory.read_u8(version[id]["Room"]);
+		-- Run.
+		while true do
+			form.updateActor();
+			emu.frameadvance();
+		end
+	else
+		gui.addmessage("Invalid ROM ID: "..id);
+		gui.addmessage("This Script will only work with Majora's Mask.");
+		gui.addmessage("");
 	end
 end
 
