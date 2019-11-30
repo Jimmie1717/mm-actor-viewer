@@ -3,7 +3,10 @@
 ![ActorViewer](https://repository-images.githubusercontent.com/224662090/6f7bd180-11c0-11ea-97dd-36c93f061470)
 
 Lua Scripts for BizHawk that create a form window and display actor data.
-This works for USA, Japan, and Japan (Rev A).
+This works for:
+- USA
+- Japan
+- Japan (Rev A).
 
 ### Usage
 
@@ -17,7 +20,7 @@ Bizhawk/
       form.lua
 ```
 
-Have the Majora's Mask ROM loaded then run the ActorViewer.lua script.
+Have the Majora's Mask ROM loaded then run the `ActorViewer.lua` script.
 A form window will be created.
 
 At the top are 3 buttons:
@@ -26,6 +29,10 @@ At the top are 3 buttons:
 - Get Actors by ID: Will go through all lists until it finds the actor(s).
 
 On the right a list of all the actors will be listed and their address.
-If a new scene is loaded the actor list will be reloaded.
+
+### Notes
+
+If a new scene or room is loaded the actor list will be reloaded.
+This doesn't quite work right yet.
 
 Current actor data is updated every frame.
