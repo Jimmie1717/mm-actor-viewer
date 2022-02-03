@@ -89,10 +89,8 @@ function getROMID()
 	local id="";
 	for i=0,3,1 do
 		id=string.format("%s%s",id,string.char(memory.read_u8(0x3B+i,"ROM")));
-		if(i==3)then
-			id=id..memory.read_u8(0x3F,"ROM");
-		end
 	end
+	id=id..memory.read_u8(0x3F,"ROM");
 	return id;
 end
 
@@ -183,19 +181,15 @@ end
 function core.init()
 	id=getROMID();
 	if(bizstring.substring(id,1,2)=="ZS")then
-		form.createForm();
 		-- init room.
 		last["Room"]=memory.read_u8(version[id]["Room"]);
-		-- Run.
-		while true do
-			form.updateActor();
-			emu.frameadvance();
-		end
+		return true;
 	else
 		gui.addmessage("Invalid ROM ID: "..id);
 		gui.addmessage("This Script will only work with Majora's Mask.");
 		gui.addmessage("");
 	end
+	return nil;
 end
 
 return core;

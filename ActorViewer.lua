@@ -3,4 +3,12 @@
 console.clear();
 core=require "ActorViewer.core";
 form=require "ActorViewer.form";
-core.init();
+if(core.init())then
+	form.createForm();
+	-- Run.
+	while true do
+		form.updateActor();
+		emu.frameadvance();
+	end
+end
+
